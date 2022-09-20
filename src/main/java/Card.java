@@ -1,19 +1,4 @@
-public class Card {
-    private final int value;
-    private final int color;
-
-    public Card(int value, int color) {
-        this.value = value;
-        this.color = color;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    public int getColor() {
-        return color;
-    }
+public record Card(int value, int color) {
 
     @Override
     public String toString() {
