@@ -11,18 +11,21 @@ import java.util.Stack;
 @Getter
 @Setter
 public class GameEngine {
-    // FIELDS
-    // deque of cards to deal from (deal deque)
     private final Stack<Card> dealDeque;
     private final int HAND_SIZE = 7;
-    // each player has a hand of cards (more like a list)
     private int numOfPlayers;
     private List<List<Card>> players;
-    // current color on the top of the discardPile
+
+    /**
+     * The color of the {@link Card} currently on top of the {@link #discardPile}
+     */
     private int currentColor;
+
+    /**
+     * Whether the next player in the game loop needs to be skipped
+     */
     private boolean skip;
-    // the discard pile
-    private Stack<Card> discardPile; // initialize capacity to 108
+    private Stack<Card> discardPile;
 
     public GameEngine(int numOfPlayers) {
         this.dealDeque = Utils.generateCards();
@@ -30,8 +33,11 @@ public class GameEngine {
         initializePlayers(numOfPlayers);
     }
 
-    // METHODS
-    // determine number of players
+    /**
+     * Initializes the {@code players} field with an appropriate
+     * number of players
+     * @param numOfPlayers desired number of players in the game
+     */
     private void initializePlayers(int numOfPlayers) {
         if (numOfPlayers < 2 || numOfPlayers > 10) {
             throw new IllegalNumberOfPlayersException(numOfPlayers);
@@ -39,6 +45,11 @@ public class GameEngine {
         dealCards(numOfPlayers);
     }
 
+    /**
+     * Gets called by {@link #initializePlayers(int)} method as a helper
+     * method to deal the appropriate number of cards to the players
+     * @param numOfPlayers desired number of players in the game
+     */
     private void dealCards(int numOfPlayers) {
         System.out.println("Deal cards to ");
         players = new ArrayList<>();
@@ -49,7 +60,14 @@ public class GameEngine {
             }
         }
     }
-    // play loop (use while true loop with index)
+
+    /**
+     * The main game loop for the Uno game.
+     * Before calling this method, {@link #dealDeque}, {@link #discardPile},
+     * and {@link #players} fields should all be initialized before
+     * entering this loop. This loop also calls all the logic required
+     * to play a game of Uno.
+     */
     public void playGame() {
         Scanner scanner = new Scanner(System.in);
 
@@ -61,7 +79,8 @@ public class GameEngine {
         // todo: replace with true and check the win condition after every player plays a card
         while (!haveWinner()) {
             for (int i = 0; i < numOfPlayers; i++) {
-                // check if the current player should be skipped
+                // check if the current player should be skipped and
+                // skips the current player if is true
                 if (skip) {
                     skip = false;
                     continue;
@@ -70,24 +89,39 @@ public class GameEngine {
                 List<Card> player = players.get(i);
                 int cardNum;
                 while (true) {
+                    // get user input to select a card
                     System.out.print("Select card: ");
                     cardNum = scanner.nextInt();
                     Card selectedCard = player.get(cardNum);
-                    if (isValid(selectedCard)) {
+
+                    // validate whether card selected in valid
+                    if (isValidPlay(selectedCard)) {
+                        // change color if needed
                         if (selectedCard.color() != currentColor) {
                             currentColor = selectedCard.color();
                         }
+                        // perform action if is an action card
                         performAction(selectedCard);
+
+                        // break out of loop if everything went right
+                        // continue looping if user choice is not valid
                         break;
                     } else {
                         System.out.println("Selected card is not valid");
                     }
                 }
+                // push the card being played by user into the discardPile
                 discardPile.push(player.remove(cardNum));
             }
         }
     }
 
+    /**
+     * Checks if the card passed in as parameter is an action card.
+     * Performs the desired action if so and does no operation if not.
+     *
+     * @param selectedCard {@link Card} object to pass in
+     */
     private void performAction(Card selectedCard) {
         switch (selectedCard.value()) {
             // skip card
@@ -102,7 +136,14 @@ public class GameEngine {
         }
     }
 
-    private boolean isValid(Card selectedCard) {
+    /**
+     * Check if the card passed in as parameter is a valid play
+     * based on the current state of the discard pile.
+     *
+     * @param selectedCard {@link Card} object to pass in
+     * @return {@code true} if is valid a valid play and {@code false} otherwise
+     */
+    private boolean isValidPlay(Card selectedCard) {
         Card topCard = discardPile.peek();
         if (selectedCard.color() == 4) {
             return true;
