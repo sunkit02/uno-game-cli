@@ -1,4 +1,6 @@
-public record Card(int value, int color) {
+import java.util.Comparator;
+
+public record Card(int value, int color) implements Comparable<Card> {
 
     @Override
     public String toString() {
@@ -22,5 +24,20 @@ public record Card(int value, int color) {
         };
 
         return String.format("[%s,%s]", displayValue, displayColor);
+    }
+
+    @Override
+    public int compareTo(Card other) {
+        return Card.getComparator().compare(this, other);
+    }
+
+    public static Comparator<Card> getComparator() {
+        return (card1, card2) -> {
+            int result = Integer.compare(card1.color, card2.color);
+            if (result != 0)
+                return result;
+            else
+                return Integer.compare(card1.value, card2.value);
+        };
     }
 }
