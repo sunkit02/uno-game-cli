@@ -1,4 +1,4 @@
-# UnoGame #
+# UnoGame - CLI #
 ### Group project for CSC-205 ###
 #### This project builds an UNO game and uses datastructures ####
 #### including but not limited to stacks and queues. ####
